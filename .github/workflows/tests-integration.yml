@@ -4,11 +4,16 @@ run-name: "Integration [${{ github.event.workflow_run.head_branch }}]: ${{ githu
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - "Tests"
-    types:
-      - completed
+  pull_request:
+    branches:
+      - main
+      - v9
+      - v8
+      - v7
+    paths-ignore:
+      - "doc/**"
+      - ".gitpod.yml"
+      - "README.md"
 
 jobs: 
   run-integration-tests-cf-env:
