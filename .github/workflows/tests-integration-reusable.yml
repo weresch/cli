@@ -144,6 +144,65 @@ jobs:
         apt-get update
         apt-get install -y build-essential
 
+    - name: Add CATS config
+      run: |
+        set -eu
+
+        ENV=$(jq -r .name metadata.json)
+        API="$(jq -r .cf.api_url metadata.json)"
+        DOMAIN=$(echo $API_URL | sed "s/^api\.//")
+        CF_INT_USERNAME="admin"
+
+        jq -r .bosh.jumpbox_private_key metadata.json > /tmp/${ENV}.priv
+        eval "$(bbl print-env --metadata-file ./metadata.json)"
+
+        CF_INT_PASSWORD=$(credhub get -n /bosh-$ENV/cf/cf_admin_password | bosh interpolate --path /value -)
+
+        cat << EOF | jq -S . > cats_config.json
+        {
+          "admin_password": "${CF_INT_PASSWORD}",
+          "admin_user": "${CF_INT_USERNAME}",
+          "api": "${API}",
+          "apps_domain": "${DOMAIN}",
+          "backend" : "diego",
+          "broker_start_timeout": 330,
+          "cf_push_timeout": 210,
+          "default_timeout": 120,
+          "long_curl_timeout": 210,
+          "skip_ssl_validation": true,
+          "use_http": true,
+          "include_apps": true,
+          "include_backend_compatibility": false,
+          "include_container_networking": true,
+          "include_detect": true,
+          "include_docker": true,
+          "include_internet_dependent": true,
+          "include_isolation_segments": true,
+          "isolation_segment_name": "persistent_isolation_segment",
+          "include_private_docker_registry": false,
+          "include_route_services": true,
+          "include_routing": true,
+          "include_routing_isolation_segments": false,
+          "include_security_groups": true,
+          "include_services": true,
+          "include_service_discovery": true,
+          "include_service_instance_sharing": true,
+          "include_ssh": true,
+          "include_sso": false,
+          "include_tasks": true,
+          "include_tcp_routing": true,
+          "include_v3": true,
+          "include_zipkin": true
+        }
+        EOF
+
+        export CF_USERNAME=${CF_INT_USERNAME}
+        export CF_PASSWORD=${CF_INT_PASSWORD}
+        cf api ${API} --skip-ssl-validation
+        cf auth
+        cf enable-feature-flag diego_docker
+        cf enable-feature-flag service_instance_sharing
+
     # - name: Deploy Isolation Segment and OIDC Provider
     #   if: ${{ inputs.capi-version == 'edge' }}
     #   env:
