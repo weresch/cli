@@ -89,7 +89,7 @@ jobs:
         pool_name: ${{ vars.SHEPHERD_POOL_NAME }}
       run: |
         shepherd login service-account ${account_token}
-        lease_id=$(shepherd create lease --duration 8h --pool ${pool_name} --pool-namespace official --namespace tas-devex --json | jq -r .id) 
+        lease_id='0053d46a-02b3-4712-9d82-b0c397000b47'
 
         # Give somtime for the lease to complete. Shepherd may take upto an 3 hours to create an env
         # if the pool is empty.
@@ -285,14 +285,14 @@ jobs:
 
         make integration-tests-full-ci
 
-    - name: Unclaim environment
-      if: always()
-      env:
-        account_token: ${{ secrets.SHEPHERD_SERVICE_ACCOUNT_TOKEN }}
-      run: |
-        shepherd login service-account ${account_token}
-        set -x
-        shepherd delete lease ${{ steps.claim-env.outputs.lease-id }} --namespace tas-devex
+    # - name: Unclaim environment
+    #   if: always()
+    #   env:
+    #     account_token: ${{ secrets.SHEPHERD_SERVICE_ACCOUNT_TOKEN }}
+    #   run: |
+    #     shepherd login service-account ${account_token}
+    #     set -x
+    #     shepherd delete lease ${{ steps.claim-env.outputs.lease-id }} --namespace tas-devex
         
     # - uses: LouisBrunner/checks-action@v2.0.0
     #   if: always()
