@@ -150,7 +150,7 @@ jobs:
 
         ENV=$(jq -r .name metadata.json)
         API="$(jq -r .cf.api_url metadata.json)"
-        DOMAIN=$(echo $API_URL | sed "s/^api\.//")
+        DOMAIN=$(echo $API | sed "s/^api\.//")
         CF_INT_USERNAME="admin"
 
         jq -r .bosh.jumpbox_private_key metadata.json > /tmp/${ENV}.priv
