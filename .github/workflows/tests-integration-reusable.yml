@@ -196,6 +196,8 @@ jobs:
         }
         EOF
 
+        export GOPATH=$PWD/go
+        export PATH="$GOPATH/bin:$PATH"
         export PATH="$PWD/out:$PATH"
         make build
 
