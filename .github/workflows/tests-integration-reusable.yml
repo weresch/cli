@@ -196,6 +196,9 @@ jobs:
         }
         EOF
 
+        export PATH="$PWD/out:$PATH"
+        make build
+
         export CF_USERNAME=${CF_INT_USERNAME}
         export CF_PASSWORD=${CF_INT_PASSWORD}
         cf api ${API} --skip-ssl-validation
