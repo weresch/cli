@@ -128,8 +128,8 @@ jobs:
 
     - name: Install Tools
       run: |
-        export GOPATH=$PWD/go
-        export PATH="$GOPATH/bin:$PATH"
+        # export GOPATH=$PWD/go
+        # export PATH="$GOPATH/bin:$PATH"
         which go
         go version
 
@@ -165,6 +165,7 @@ jobs:
         make build
         export PATH="$PWD/out:$PATH"
         echo $PATH
+        which cf
         cf version
 
     # - name: Deploy Isolation Segment and OIDC Provider
@@ -297,6 +298,8 @@ jobs:
         }
         EOF
 
+        echo $PATH
+        echo $PWD
         export CF_USERNAME=${CF_INT_USERNAME}
         export CF_PASSWORD=${CF_INT_PASSWORD}
         cf api ${API} --skip-ssl-validation
