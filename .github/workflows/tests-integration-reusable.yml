@@ -120,8 +120,18 @@ jobs:
         cat metadata.json | jq -r '.name'
         echo "lease-id=$lease_id" >> "${GITHUB_OUTPUT}"
     
+    - name: Set Up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+        check-latest: true
+
     - name: Install Tools
       run: |
+        export GOPATH=$PWD/go
+        export PATH="$GOPATH/bin:$PATH"
+        export PATH="$PWD/out:$PATH"
+
         if [[ ${{ inputs.os }} =~ "windows" ]]
         then
           install_location=/usr/bin
@@ -229,12 +239,6 @@ jobs:
                           use-latest-ruby-buildpack.yml"
         ./cf-deployment-concourse-tasks/bosh-deploy/task
 
-    - name: Set Up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version-file: go.mod
-        check-latest: true
-
     - name: Add CATS config
       run: |
         set -eu
@@ -287,9 +291,6 @@ jobs:
         }
         EOF
 
-        export GOPATH=$PWD/go
-        export PATH="$GOPATH/bin:$PATH"
-        export PATH="$PWD/out:$PATH"
         make build
 
         export CF_USERNAME=${CF_INT_USERNAME}
