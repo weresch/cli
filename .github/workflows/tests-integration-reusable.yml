@@ -53,6 +53,13 @@ jobs:
         repository: cloudfoundry/cli-ci
         path: cli-ci
 
+    - name: Checkout cf-acceptance-tests-rc
+      uses: actions/checkout@v4
+      with:
+        repository: cloudfoundry/cf-acceptance-tests
+        ref: release-candidate
+        path: cf-acceptance-tests
+
     - id: read-min-capi
       name: Read MIN CAPI
       run: |
@@ -292,62 +299,94 @@ jobs:
         cf enable-feature-flag diego_docker
         cf enable-feature-flag service_instance_sharing
 
-    - name: Run Integration Tests
-      if: ${{ !inputs.run-with-client-creds }}
+    - name: Run CATS Tests
       run: |
-        ENV=$(cat metadata.json | jq -r '.name')
-        jq -r .bosh.jumpbox_private_key metadata.json > /tmp/${ENV}.priv
-        eval "$(bbl print-env --metadata-file ./metadata.json)"
-        export CF_INT_PASSWORD="$(credhub get -n /bosh-$ENV/cf/cf_admin_password | bosh interpolate --path /value -)"
-        export CF_INT_OIDC_USERNAME="admin-oidc"
-        export CF_INT_OIDC_PASSWORD=$(credhub get -n /bosh-$ENV/cf/uaa_oidc_admin_password | bosh interpolate --path /value -)
-        API_URL="$(jq -r .cf.api_url metadata.json)"
-        export CF_INT_API="https://$API_URL"
-        export CF_DIAL_TIMEOUT=15
-        export CF_USERNAME=admin
-        export FLAKE_ATTEMPTS=2
-        export NODES=16
-        export GOPATH=$PWD/go
-        export PATH="$GOPATH/bin:$PATH"
-        export PATH="$PWD/out:$PATH"
+        set -xeu
 
-        make build
+        export CONFIG
+        CONFIG=$(mktemp)
 
-        export CF_PASSWORD=${CF_INT_PASSWORD}
-        cf api ${CF_INT_API} --skip-ssl-validation
-        cf auth
+        original_config="${PWD}/cats_config.json"
+        cp ${original_config} ${CONFIG}
 
-        make integration-tests-full-ci
+        # CF_GOPATH=/go/src/github.com/cloudfoundry/
 
-    - name: Run Integration Tests with client credentials
-      if: ${{ inputs.run-with-client-creds }}
-      env:
-        CF_INT_CLIENT_ID: 'potato-face'
-        CF_INT_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-      run: |
-        ENV=$(cat metadata.json | jq -r '.name')
-        jq -r .bosh.jumpbox_private_key metadata.json > /tmp/${ENV}.priv
-        eval "$(bbl print-env --metadata-file ./metadata.json)"
-        export CF_INT_PASSWORD="$(credhub get -n /bosh-$ENV/cf/cf_admin_password | bosh interpolate --path /value -)"
-        export CF_INT_OIDC_USERNAME="admin-oidc"
-        export CF_INT_OIDC_PASSWORD=$(credhub get -n /bosh-$ENV/cf/uaa_oidc_admin_password | bosh interpolate --path /value -)
-        API_URL="$(jq -r .cf.api_url metadata.json)"
-        export CF_INT_API="https://$API_URL"
-        export CF_DIAL_TIMEOUT=15
-        export CF_USERNAME=admin
-        export FLAKE_ATTEMPTS=2
-        export NODES=16
-        export GOPATH=$PWD/go
-        export PATH="$GOPATH/bin:$PATH"
-        export PATH="$PWD/out:$PATH"
+        # echo "Moving cf-acceptance-tests onto the gopath..."
+        # mkdir -p $CF_GOPATH
+        # cp -R cf-acceptance-tests $CF_GOPATH
 
-        make build
+        # cd /go/src/github.com/cloudfoundry/cf-acceptance-tests
 
-        export CF_PASSWORD=${CF_INT_PASSWORD}
-        cf api ${CF_INT_API} --skip-ssl-validation
-        cf auth
+        cd ./cf-acceptance-tests
+        export CF_DIAL_TIMEOUT=11
+        export CF_PLUGIN_HOME=$HOME
 
-        make integration-tests-full-ci
+        ./bin/test \
+          --keep-going \
+          --randomize-all \
+          --skip-package=helpers \
+          --nodes="16" \
+          --skip="transparently proxies both reserved" \
+          --flake-attempts=2 \
+          --timeout="2h" \
+          --no-color
+
+    # - name: Run Integration Tests
+    #   if: ${{ !inputs.run-with-client-creds }}
+    #   run: |
+    #     ENV=$(cat metadata.json | jq -r '.name')
+    #     jq -r .bosh.jumpbox_private_key metadata.json > /tmp/${ENV}.priv
+    #     eval "$(bbl print-env --metadata-file ./metadata.json)"
+    #     export CF_INT_PASSWORD="$(credhub get -n /bosh-$ENV/cf/cf_admin_password | bosh interpolate --path /value -)"
+    #     export CF_INT_OIDC_USERNAME="admin-oidc"
+    #     export CF_INT_OIDC_PASSWORD=$(credhub get -n /bosh-$ENV/cf/uaa_oidc_admin_password | bosh interpolate --path /value -)
+    #     API_URL="$(jq -r .cf.api_url metadata.json)"
+    #     export CF_INT_API="https://$API_URL"
+    #     export CF_DIAL_TIMEOUT=15
+    #     export CF_USERNAME=admin
+    #     export FLAKE_ATTEMPTS=2
+    #     export NODES=16
+    #     export GOPATH=$PWD/go
+    #     export PATH="$GOPATH/bin:$PATH"
+    #     export PATH="$PWD/out:$PATH"
+
+    #     make build
+
+    #     export CF_PASSWORD=${CF_INT_PASSWORD}
+    #     cf api ${CF_INT_API} --skip-ssl-validation
+    #     cf auth
+
+    #     make integration-tests-full-ci
+
+    # - name: Run Integration Tests with client credentials
+    #   if: ${{ inputs.run-with-client-creds }}
+    #   env:
+    #     CF_INT_CLIENT_ID: 'potato-face'
+    #     CF_INT_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+    #   run: |
+    #     ENV=$(cat metadata.json | jq -r '.name')
+    #     jq -r .bosh.jumpbox_private_key metadata.json > /tmp/${ENV}.priv
+    #     eval "$(bbl print-env --metadata-file ./metadata.json)"
+    #     export CF_INT_PASSWORD="$(credhub get -n /bosh-$ENV/cf/cf_admin_password | bosh interpolate --path /value -)"
+    #     export CF_INT_OIDC_USERNAME="admin-oidc"
+    #     export CF_INT_OIDC_PASSWORD=$(credhub get -n /bosh-$ENV/cf/uaa_oidc_admin_password | bosh interpolate --path /value -)
+    #     API_URL="$(jq -r .cf.api_url metadata.json)"
+    #     export CF_INT_API="https://$API_URL"
+    #     export CF_DIAL_TIMEOUT=15
+    #     export CF_USERNAME=admin
+    #     export FLAKE_ATTEMPTS=2
+    #     export NODES=16
+    #     export GOPATH=$PWD/go
+    #     export PATH="$GOPATH/bin:$PATH"
+    #     export PATH="$PWD/out:$PATH"
+
+    #     make build
+
+    #     export CF_PASSWORD=${CF_INT_PASSWORD}
+    #     cf api ${CF_INT_API} --skip-ssl-validation
+    #     cf auth
+
+    #     make integration-tests-full-ci
 
     # - name: Unclaim environment
     #   if: always()
