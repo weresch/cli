@@ -130,7 +130,11 @@ jobs:
       run: |
         export GOPATH=$PWD/go
         export PATH="$GOPATH/bin:$PATH"
+        go version
+
+        make build
         export PATH="$PWD/out:$PATH"
+        cf version
 
         if [[ ${{ inputs.os }} =~ "windows" ]]
         then
@@ -290,8 +294,6 @@ jobs:
           "include_zipkin": true
         }
         EOF
-
-        make build
 
         export CF_USERNAME=${CF_INT_USERNAME}
         export CF_PASSWORD=${CF_INT_PASSWORD}
