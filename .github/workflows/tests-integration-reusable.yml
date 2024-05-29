@@ -266,6 +266,7 @@ jobs:
           "broker_start_timeout": 330,
           "cf_push_timeout": 210,
           "default_timeout": 120,
+          "go_buildpack_name": https://github.com/cloudfoundry/go-buildpack.git,
           "long_curl_timeout": 210,
           "skip_ssl_validation": true,
           "use_http": true,
@@ -311,15 +312,15 @@ jobs:
         original_config="${PWD}/cats_config.json"
         cp ${original_config} ${CONFIG}
 
-        CF_GOPATH=/__t/go/1.22.3/x64/src/github.com/cloudfoundry/
+        # CF_GOPATH=/__t/go/1.22.3/x64/src/github.com/cloudfoundry/
 
-        echo "Moving cf-acceptance-tests onto the gopath..."
-        mkdir -p $CF_GOPATH
-        cp -R cf-acceptance-tests $CF_GOPATH
+        # echo "Moving cf-acceptance-tests onto the gopath..."
+        # mkdir -p $CF_GOPATH
+        # cp -R cf-acceptance-tests $CF_GOPATH
 
-        cd $CF_GOPATH/cf-acceptance-tests
+        # cd $CF_GOPATH/cf-acceptance-tests
 
-        # cd ./cf-acceptance-tests
+        cd ./cf-acceptance-tests
         export CF_DIAL_TIMEOUT=11
         export CF_PLUGIN_HOME=$HOME
         go version
