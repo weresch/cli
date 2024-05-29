@@ -160,7 +160,11 @@ jobs:
         apt-get install -y build-essential
 
         make build
+        echo "$PWD/out" >> $GITHUB_PATH
         export PATH="$PWD/out:$PATH"
+        echo $GITHUB_PATH
+        echo $PATH
+        which cf
         cf version
 
     # - name: Deploy Isolation Segment and OIDC Provider
@@ -293,7 +297,6 @@ jobs:
         }
         EOF
 
-        export PATH="$PWD/out:$PATH"
         echo $PATH
         which cf
         cf version
