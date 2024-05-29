@@ -324,10 +324,10 @@ jobs:
         export CF_PLUGIN_HOME=$HOME
         go version
         echo $PATH
-        ls -la /github/home/go/
-        ls -la /__t/go/
-        ls -la /__t/go/1.22.3/
         ls -la /__t/go/1.22.3/x64/
+        ls -la /__t/go/1.22.3/x64/src/
+        ls -la /__t/go/1.22.3/x64/src/github.com/
+        ls -la /__t/go/1.22.3/x64/src/github.com/cloudfoundry/
 
         ./bin/test \
           --keep-going \
