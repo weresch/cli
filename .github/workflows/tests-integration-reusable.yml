@@ -162,9 +162,6 @@ jobs:
         make build
         echo "$PWD/out" >> $GITHUB_PATH
         export PATH="$PWD/out:$PATH"
-        echo $GITHUB_PATH
-        echo $PATH
-        which cf
         cf version
 
     # - name: Deploy Isolation Segment and OIDC Provider
@@ -297,9 +294,6 @@ jobs:
         }
         EOF
 
-        echo $PATH
-        which cf
-        cf version
         export CF_USERNAME=${CF_INT_USERNAME}
         export CF_PASSWORD=${CF_INT_PASSWORD}
         cf api ${API} --skip-ssl-validation
@@ -328,6 +322,11 @@ jobs:
         cd ./cf-acceptance-tests
         export CF_DIAL_TIMEOUT=11
         export CF_PLUGIN_HOME=$HOME
+        go version
+        echo $PATH
+        ls -la /go/src/
+        ls -la /go/src/github.com/
+        ls -la /go/src/github.com/cloudfoundry/
 
         ./bin/test \
           --keep-going \
