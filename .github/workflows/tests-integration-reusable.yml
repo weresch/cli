@@ -300,8 +300,8 @@ jobs:
         cf auth
         cf enable-feature-flag diego_docker
         cf enable-feature-flag service_instance_sharing
-        cf stacks
-        # cf update-buildpack go_buildpack -p https://github.com/cloudfoundry/go-buildpack.git
+        cf update-buildpack go_buildpack -p https://github.com/cloudfoundry/go-buildpack.git -s cflinuxfs3
+        cf update-buildpack go_buildpack -p https://github.com/cloudfoundry/go-buildpack.git -s cflinuxfs4
 
     - name: Run CATS Tests
       run: |
