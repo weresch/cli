@@ -311,23 +311,19 @@ jobs:
         original_config="${PWD}/cats_config.json"
         cp ${original_config} ${CONFIG}
 
-        # CF_GOPATH=/go/src/github.com/cloudfoundry/
+        CF_GOPATH=/__t/go/1.22.3/x64/src/github.com/cloudfoundry/
 
-        # echo "Moving cf-acceptance-tests onto the gopath..."
-        # mkdir -p $CF_GOPATH
-        # cp -R cf-acceptance-tests $CF_GOPATH
+        echo "Moving cf-acceptance-tests onto the gopath..."
+        mkdir -p $CF_GOPATH
+        cp -R cf-acceptance-tests $CF_GOPATH
 
-        # cd /go/src/github.com/cloudfoundry/cf-acceptance-tests
+        cd $CF_GOPATH/cf-acceptance-tests
 
-        cd ./cf-acceptance-tests
+        # cd ./cf-acceptance-tests
         export CF_DIAL_TIMEOUT=11
         export CF_PLUGIN_HOME=$HOME
         go version
         echo $PATH
-        ls -la /__t/go/1.22.3/x64/
-        ls -la /__t/go/1.22.3/x64/src/
-        ls -la /__t/go/1.22.3/x64/src/github.com/
-        ls -la /__t/go/1.22.3/x64/src/github.com/cloudfoundry/
 
         ./bin/test \
           --keep-going \
