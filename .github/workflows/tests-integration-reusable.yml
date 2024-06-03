@@ -57,7 +57,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: cloudfoundry/cf-acceptance-tests
-        ref: cf29.1
+        ref: cf33.2
         path: cf-acceptance-tests
 
     - id: read-min-capi
@@ -96,7 +96,7 @@ jobs:
         pool_name: ${{ vars.SHEPHERD_POOL_NAME }}
       run: |
         shepherd login service-account ${account_token}
-        lease_id='0053d46a-02b3-4712-9d82-b0c397000b47'
+        lease_id='0e56a4ed-b82b-4f7a-9ab4-cb1a71cfcb08'
 
         # Give somtime for the lease to complete. Shepherd may take upto an 3 hours to create an env
         # if the pool is empty.
