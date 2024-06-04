@@ -57,7 +57,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: cloudfoundry/cf-acceptance-tests
-        ref: cf33.2
+        ref: release-candidate
         path: cf-acceptance-tests
 
     - id: read-min-capi
@@ -334,7 +334,7 @@ jobs:
           --randomize-all \
           --skip-package=helpers \
           --nodes="16" \
-          --skip="transparently proxies both reserved" \
+          --skip="is able to retrieve container metrics" \
           --flake-attempts=2 \
           --timeout="2h" \
           --no-color
