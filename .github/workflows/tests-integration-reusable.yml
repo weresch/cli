@@ -96,7 +96,7 @@ jobs:
         pool_name: ${{ vars.SHEPHERD_POOL_NAME }}
       run: |
         shepherd login service-account ${account_token}
-        lease_id='0e56a4ed-b82b-4f7a-9ab4-cb1a71cfcb08'
+        lease_id='e0d21e2a-927b-44a2-8025-f776bfd3a7fb'
 
         # Give somtime for the lease to complete. Shepherd may take upto an 3 hours to create an env
         # if the pool is empty.
@@ -334,7 +334,6 @@ jobs:
           --randomize-all \
           --skip-package=helpers \
           --nodes="16" \
-          --skip="is able to retrieve container metrics" \
           --flake-attempts=2 \
           --timeout="2h" \
           --no-color
