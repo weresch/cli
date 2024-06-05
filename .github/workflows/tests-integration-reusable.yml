@@ -156,8 +156,6 @@ jobs:
         chmod +x $install_location/credhub
         credhub --version
 
-        which unzip
-
         apt-get update
         apt-get install -y build-essential unzip
 
