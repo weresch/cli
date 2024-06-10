@@ -10,6 +10,7 @@ on:
         required: true
         type: choice
         options:
+          - run-CATS-tests-cf-env
           - run-integration-tests-cf-env
           - run-integration-tests-cf-env-with-client-creds
           - run-integration-tests-cf-env-with-min-capi
@@ -21,7 +22,19 @@ on:
     types:
       - completed
 
-jobs: 
+jobs:
+  run-CATS-tests-cf-env:
+    name: CATS tests
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.workflow == 'run-CATS-tests-cf-env') || github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/tests-integration-reusable.yml
+    with:
+      capi-version: edge
+      run-with-client-creds: false
+      os: ubuntu-latest
+      name: CATS
+      is-pr: ${{ github.event_name != 'workflow_dispatch' }}
+    secrets: inherit
+
   run-integration-tests-cf-env:
     name: Integration tests
     if: ${{ (github.event_name == 'workflow_dispatch' && inputs.workflow == 'run-integration-tests-cf-env') || github.event.workflow_run.conclusion == 'success' }}
