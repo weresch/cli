@@ -240,9 +240,8 @@ PAGER=cat
 
 check-cves:
 	gh act \
-	  --actor "${GITHUB_ACTOR}" \
-		--secret GITHUB_TOKEN="${GITHUB_TOKEN}" \
-		--workflows .github/workflows/check-cves.yml \
-		--verbose
+	  --actor "${GITHUB_USER}" \
+	  --secret GITHUB_TOKEN="${GITHUB_TOKEN}" \
+	  --workflows .github/workflows/check-cves.yml
 
 .PHONY: check-cves
