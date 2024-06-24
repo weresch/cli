@@ -1,0 +1,24 @@
+name: "Check CVEs"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-cves:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out codebase
+      uses: actions/checkout@v4
+    
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        path: .
+        upload-artifact: true
+        format: spdx-json
+        github-token: ${{ secrets.GITHUB_TOKEN }}-asdkmlasmdlkasm
+        output-file: "cf-cli-sbom.spdx.json"
+    
+    - name: Debug
+      run: pwd && ls -latr . && cat "cf-cli-sbom.spdx.json"

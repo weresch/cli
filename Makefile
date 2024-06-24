@@ -231,3 +231,17 @@ version: ## Print the version number of what would be built
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-34s\033[0m %s\n", $$1, $$2}'
+
+
+## GitHub Action shortcuts
+GITHUB_TOKEN:=$(shell gh auth token || (gh auth login --scopes "write:artifacts,workflow" && gh auth token))
+GITHUB_USER:=$(gh api user | jq -r '.login')
+PAGER=cat
+
+check-cves:
+	gh act \
+	  --actor "${GITHUB_ACTOR}" \
+		--secret GITHUB_TOKEN="${GITHUB_TOKEN}" \
+		--workflows .github/workflows/check-cves.yml
+
+.PHONY: check-cves
