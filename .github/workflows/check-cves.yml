@@ -22,5 +22,5 @@ jobs:
         output-format: json
 
     - name: Print scan results
-      run: .github/scripts/format-cve-scan-results.sh results.json
+      run: .github/scripts/format-cve-scan-results.sh results.json > $GITHUB_STEP_SUMMARY
       if: always()
