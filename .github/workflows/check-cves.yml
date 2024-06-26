@@ -19,3 +19,8 @@ jobs:
         path: "."
         add-cpes-if-none: true
         by-cve: true
+        output-format: json
+
+    - name: Print scan results
+      run: cat ./results.json
+      if: always()
