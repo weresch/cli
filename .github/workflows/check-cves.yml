@@ -17,3 +17,5 @@ jobs:
       uses: anchore/scan-action@v3
       with:
         path: "."
+        add-cpes-if-none: true
+        by-cve: true
