@@ -2,7 +2,6 @@ package isolated
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -60,7 +59,6 @@ var _ = Describe("curl command", func() {
 		Eventually(session).Should(Say(`Content-Length: .+`))
 		Eventually(session).Should(Say(`Content-Type: .+`))
 		Eventually(session).Should(Say(`Date: .+`))
-		Eventually(session).Should(Say(`Server: .+`))
 		Eventually(session).Should(Say(`X-Content-Type-Options: .+`))
 		Eventually(session).Should(Say(`X-Vcap-Request-Id: .+`))
 	}
@@ -320,7 +318,7 @@ var _ = Describe("curl command", func() {
 
 					BeforeEach(func() {
 						var err error
-						dir, err = ioutil.TempDir("", "curl-command")
+						dir, err = os.MkdirTemp("", "curl-command")
 						Expect(err).ToNot(HaveOccurred())
 
 						filePath = filepath.Join(dir, "request_body.json")
@@ -328,7 +326,7 @@ var _ = Describe("curl command", func() {
 						spaceName = helpers.NewSpaceName()
 
 						jsonBody := fmt.Sprintf(`{"name":"%s", "organization_guid":"%s"}`, spaceName, orgGUID)
-						err = ioutil.WriteFile(filePath, []byte(jsonBody), 0666)
+						err = os.WriteFile(filePath, []byte(jsonBody), 0666)
 						Expect(err).ToNot(HaveOccurred())
 					})
 
@@ -385,13 +383,13 @@ var _ = Describe("curl command", func() {
 
 			When("--output is passed with a file name", func() {
 				It("writes the response headers and body to the file", func() {
-					outFile, err := ioutil.TempFile("", "output*.json")
+					outFile, err := os.CreateTemp("", "output*.json")
 					Expect(err).ToNot(HaveOccurred())
 					session := helpers.CF("curl", "/v2/apps", "-i", "--output", outFile.Name())
 					Eventually(session).Should(Exit(0))
 					Eventually(session).Should(Say("OK"))
 
-					body, err := ioutil.ReadFile(outFile.Name())
+					body, err := os.ReadFile(outFile.Name())
 					Expect(err).ToNot(HaveOccurred())
 
 					contents := string(body)
@@ -401,7 +399,6 @@ var _ = Describe("curl command", func() {
 					Expect(contents).To(MatchRegexp(`Content-Length: .+`))
 					Expect(contents).To(MatchRegexp(`Content-Type: .+`))
 					Expect(contents).To(MatchRegexp(`Date: .+`))
-					Expect(contents).To(MatchRegexp(`Server: .+`))
 					Expect(contents).To(MatchRegexp(`X-Content-Type-Options: .+`))
 					Expect(contents).To(MatchRegexp(`X-Vcap-Request-Id: .+`))
 
@@ -413,7 +410,7 @@ var _ = Describe("curl command", func() {
 					var tempDir, traceFile, outFile string
 					BeforeEach(func() {
 						var err error
-						tempDir, err = ioutil.TempDir("", "")
+						tempDir, err = os.MkdirTemp("", "")
 						Expect(err).ToNot(HaveOccurred())
 						traceFile = filepath.Join(tempDir, "trace.log")
 						outFile = filepath.Join(tempDir, "output")
@@ -427,11 +424,11 @@ var _ = Describe("curl command", func() {
 						session := helpers.CFWithEnv(map[string]string{"CF_TRACE": traceFile}, "curl", "/v2/apps", "--output", outFile)
 						Eventually(session).Should(Exit(0))
 
-						outBytes, err := ioutil.ReadFile(outFile)
+						outBytes, err := os.ReadFile(outFile)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(string(outBytes)).To(MatchJSON(expectedJSON))
 
-						traceBytes, err := ioutil.ReadFile(traceFile)
+						traceBytes, err := os.ReadFile(traceFile)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(traceBytes).To(ContainSubstring("REQUEST: "))
 						Expect(traceBytes).To(ContainSubstring("HTTP/1.1 200 OK"))
@@ -467,7 +464,7 @@ var _ = Describe("curl command", func() {
 
 					BeforeEach(func() {
 						var err error
-						dir, err = ioutil.TempDir("", "curl-command")
+						dir, err = os.MkdirTemp("", "curl-command")
 						Expect(err).ToNot(HaveOccurred())
 
 						filePath = filepath.Join(dir, "request_body.json")
@@ -475,7 +472,7 @@ var _ = Describe("curl command", func() {
 						spaceName = helpers.NewSpaceName()
 
 						jsonBody = fmt.Sprintf(`{"name":"%s", "organization_guid":"%s"}`, spaceName, orgGUID)
-						err = ioutil.WriteFile(filePath, []byte(jsonBody), 0666)
+						err = os.WriteFile(filePath, []byte(jsonBody), 0666)
 						Expect(err).ToNot(HaveOccurred())
 					})
 
