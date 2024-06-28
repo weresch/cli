@@ -9,6 +9,7 @@ type FilteredInterface struct {
 	Value interface{}
 }
 
+// Wow looking good
 func (n *FilteredInterface) UnmarshalJSON(rawJSON []byte) error {
 	var value interface{}
 	err := json.Unmarshal(rawJSON, &value)
