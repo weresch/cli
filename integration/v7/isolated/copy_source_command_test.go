@@ -401,6 +401,26 @@ var _ = Describe("copy-source command", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(string(body)).To(MatchRegexp("hello world"))
 		})
+
+		It("displays max-in-flight when it is not the default value", func() {
+			username, _ := helpers.GetCredentials()
+			session := helpers.CF("copy-source", sourceAppName, targetAppName, "--strategy", "canary", "--max-in-flight", "2")
+			Eventually(session).Should(Say("Copying source from app %s to target app %s in org %s / space %s as %s...", sourceAppName, targetAppName, orgName, spaceName, username))
+			Eventually(session).Should(Say("Staging app %s in org %s / space %s as %s...", targetAppName, orgName, spaceName, username))
+			Eventually(session).Should(Say("Waiting for app to deploy..."))
+			Eventually(session).Should(Say("Canary deployment currently PAUSED"))
+			Eventually(session).Should(Say("max-in-flight: 2"))
+			Eventually(session).Should(Say("Please run `cf continue-deployment %s` to promote the canary deployment, or `cf cancel-deployment %s` to rollback to the previous version.", targetAppName, targetAppName))
+			Eventually(session).Should(Exit(0))
+
+			Eventually(helpers.CF("continue-deployment", targetAppName)).Should(Exit(0))
+			resp, err := http.Get(fmt.Sprintf("http://%s.%s", targetAppName, helpers.DefaultSharedDomain()))
+			Expect(err).ToNot(HaveOccurred())
+			defer resp.Body.Close()
+			body, err := io.ReadAll(resp.Body)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(string(body)).To(MatchRegexp("hello world"))
+		})
 	})
 
 	Describe("command behavior when the --no-wait flag is passed", func() {
