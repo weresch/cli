@@ -54,8 +54,8 @@ jobs:
     - name: Checkout cf-acceptance-tests
       uses: actions/checkout@v4
       with:
-        repository: cloudfoundry/cf-acceptance-tests
-        ref: release-candidate
+        repository: Samze/cf-acceptance-tests
+        ref: fix_go_mod_toolchain
         path: cf-acceptance-tests
 
     - id: read-min-capi
